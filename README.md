@@ -54,7 +54,9 @@ INFO:     Waiting for application startup.
 
 - Open Terminal/ Command Prompt, then navigate to the `frontend` directory and type in:
 
-> npm run serve
+```bash
+npm run serve
+```
 
 - The above command should result in something like this:
 ```bash
