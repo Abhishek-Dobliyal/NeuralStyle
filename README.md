@@ -79,3 +79,8 @@ npm run serve
 - Kindly do not move, delete, rename or modify any files (unless you know what you are doing).
 
 - The stylization process depends on your system's specifications (GPU is recommended).
+
+## Todo
+
+- [ ] Improve Styling
+- [ ] Work on issues (if any)
