@@ -1,0 +1,5 @@
+fastapi==0.75.2
+h5py==3.6.0
+opencv-python==4.5.5.64
+tensorflow==2.8.0
+uvicorn==0.17.6
