@@ -18,7 +18,7 @@ export default createStore({
     contentImageName: "",
     styleImageName: "",
     sliderValues: {
-      epochs: 10,
+      epochs: 2,
       contentWeight: 0.01,
       styleWeight: 0.001,
     },
