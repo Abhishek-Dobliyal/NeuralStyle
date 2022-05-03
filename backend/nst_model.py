@@ -1,12 +1,11 @@
 """ Required Imports """
 import tensorflow as tf
 import numpy as np
-import cv2
-
+from PIL import Image
 
 CONTENT_LAYER = "block5_conv2"
 STYLE_LAYERS = ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1", "block5_conv1"]
-WEIGHTS_PATH = "./vgg19_weights_tf_dim_ordering_tf_kernels.h5"
+WEIGHTS_PATH = "./vgg19_weights_tf_dim_ordering_tf_kernels_notop.h5"
 
 """
 Layers in the pre-trained VGG19
@@ -38,7 +37,7 @@ Layers in the pre-trained VGG19
 class NST:
 
     def __init__(self, content_img_path, style_img_path,
-                                epochs=15, style_weight=1e-2, content_weight=1e-3):
+                                epochs=2, style_weight=1e-2, content_weight=1e-3):
 
         self.epochs = epochs
         self.style_weight = style_weight
@@ -47,7 +46,7 @@ class NST:
         self.content_img, self.style_img = self.load_images(content_img_path,
                                                                                                                             style_img_path)
         self.vgg_model = self.load_vgg()
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.05)
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.075, beta_1=0.99, epsilon=1e-1)
         self.content_target, self.style_target = self.get_target_images()
         self.loss = None
 
@@ -81,7 +80,8 @@ class NST:
         Returns:
             (tf.keras.Model) : Pre-trained VGG19 model
         """
-        vgg = tf.keras.applications.VGG19(include_top=True, weights=None)
+        # Include weights from external weights file
+        vgg = tf.keras.applications.VGG19(include_top=False, weights=None)
         vgg.load_weights(WEIGHTS_PATH)
         vgg.trainable = False
 
@@ -92,6 +92,30 @@ class NST:
         model = tf.keras.Model([vgg.input], [content_res, gram_style_res])
         print("Model loaded!")
         return model
+
+    def image_to_tensor(self, image_path: str) -> tf.Tensor:
+        """
+        Loads an image fron the path and returns it's tensor
+
+        Params:
+            image_path (str) : Path to image file
+
+        Retirns:
+            (tf.Tensor) : Tensor of the image specified
+        """
+        max_dim = 512
+        img = tf.io.read_file(image_path)
+        img = tf.image.decode_image(img, channels=3)
+        img = tf.image.convert_image_dtype(img, tf.float32)
+
+        shape = tf.cast(tf.shape(img)[:-1], tf.float32)
+        long_dim = max(shape)
+        scale = max_dim / long_dim
+
+        new_shape = tf.cast(shape * scale, tf.int32)
+
+        img = tf.image.resize(img, new_shape)
+        return img
 
 
     def load_images(self, content_img_path: str, style_img_path: str) -> tuple:
@@ -105,12 +129,10 @@ class NST:
         Returns:
             (tuple) : Both the content and style image representation inside a tuple
         """
-        content_image = cv2.resize(cv2.imread(content_img_path), (224, 224))
-        content_image = tf.image.convert_image_dtype(content_image, tf.float32)
-        style_image = cv2.resize(cv2.imread(style_img_path), (224, 224))
-        style_image = tf.image.convert_image_dtype(style_image, tf.float32)
+        content_image_tensor = self.image_to_tensor(content_img_path)
+        style_image_tensor = self.image_to_tensor(style_img_path)
         print("\nImages successfully loaded!")
-        return content_image, style_image
+        return content_image_tensor, style_image_tensor
 
 
     def get_loss(self, style_outputs: tf.Tensor,
@@ -195,7 +217,7 @@ class NST:
         for epoch in range(self.epochs):
             self.apply_gradients(image, epoch)
 
-        image = np.float32(tf.squeeze(image))
-        cv2.imwrite("stylized.jpg", image * 255)
+        image = np.float32(tf.squeeze(image)) * 255
+        image = Image.fromarray(image.astype("uint8"))
+        image.save("stylized.jpg")
         print("Output successfully generated!\n")
-        return image
