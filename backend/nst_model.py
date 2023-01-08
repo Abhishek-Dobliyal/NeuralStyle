@@ -48,15 +48,11 @@ class NST:
         self.style_weight = style_weight
         self.content_weight = content_weight
 
-        self.content_img, self.style_img = self.load_images(content_img_path, style_img_path)                                                                                                                        
+        self.content_img, self.style_img = self.load_images(content_img_path, style_img_path)
         self.vgg_model = self.load_vgg()
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.05)
         self.content_target, self.style_target = self.get_target_images()
         self.loss = None
-
-        if not os.path.isfile(WEIGHTS):
-            print("Downloading Weights....")
-            gdown.download(WEIGHTS_URL, WEIGHTS, quiet=False)
 
 
     def get_gram_matrix(self, matrix: tf.Tensor) -> tf.Tensor:
@@ -89,6 +85,10 @@ class NST:
             (tf.keras.Model) : Pre-trained VGG19 model
         """
         # Include weights from external weights file
+        if not os.path.isfile(WEIGHTS):
+            print("Downloading Weights....")
+            gdown.download(WEIGHTS_URL, WEIGHTS, quiet=False)
+
         vgg = tf.keras.applications.VGG19(include_top=False, weights=None)
         vgg.load_weights(WEIGHTS)
         vgg.trainable = False
