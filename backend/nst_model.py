@@ -9,7 +9,7 @@ import gdown
 
 CONTENT_LAYER = "block5_conv2"
 STYLE_LAYERS = ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1", "block5_conv1"]
-WEIGHTS = "./vgg19_weights_tf_dim_ordering_tf_kernels_notop.h5"
+WEIGHTS = "vgg19_weights_tf_dim_ordering_tf_kernels_notop.h5"
 WEIGHTS_URL = "https://drive.google.com/uc?id=15T0plYFj2jovfIh3TNu1yM1G1A7eccw_"
 
 """
