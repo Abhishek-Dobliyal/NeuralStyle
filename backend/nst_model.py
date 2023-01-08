@@ -1,11 +1,16 @@
 """ Required Imports """
+import os
+
 import tensorflow as tf
 import numpy as np
 from PIL import Image
+import gdown
+
 
 CONTENT_LAYER = "block5_conv2"
 STYLE_LAYERS = ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1", "block5_conv1"]
-WEIGHTS_PATH = "./vgg19_weights_tf_dim_ordering_tf_kernels_notop.h5"
+WEIGHTS = "./vgg19_weights_tf_dim_ordering_tf_kernels_notop.h5"
+WEIGHTS_URL = "https://drive.google.com/uc?id=15T0plYFj2jovfIh3TNu1yM1G1A7eccw_"
 
 """
 Layers in the pre-trained VGG19
@@ -37,7 +42,7 @@ Layers in the pre-trained VGG19
 class NST:
 
     def __init__(self, content_img_path, style_img_path,
-                                epochs=2, style_weight=1e-2, content_weight=1e-3):
+                epochs=2, style_weight=1e-2, content_weight=1e-3):
 
         self.epochs = epochs
         self.style_weight = style_weight
@@ -46,9 +51,13 @@ class NST:
         self.content_img, self.style_img = self.load_images(content_img_path,
                                                                                                                             style_img_path)
         self.vgg_model = self.load_vgg()
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.075, beta_1=0.99, epsilon=1e-1)
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.05)
         self.content_target, self.style_target = self.get_target_images()
         self.loss = None
+
+        if not os.path.isfile(WEIGHTS):
+            print("Downloading Weights....")
+            gdown.download(WEIGHTS_URL, WEIGHTS, quiet=False)
 
 
     def get_gram_matrix(self, matrix: tf.Tensor) -> tf.Tensor:
@@ -82,7 +91,7 @@ class NST:
         """
         # Include weights from external weights file
         vgg = tf.keras.applications.VGG19(include_top=False, weights=None)
-        vgg.load_weights(WEIGHTS_PATH)
+        vgg.load_weights(WEIGHTS)
         vgg.trainable = False
 
         content_res = vgg.get_layer(CONTENT_LAYER).output
@@ -136,9 +145,9 @@ class NST:
 
 
     def get_loss(self, style_outputs: tf.Tensor,
-                                 style_target: tf.Tensor,
-                                 content_outputs: tf.Tensor,
-                                 content_target: tf.Tensor) -> float:
+                       style_target: tf.Tensor,
+                       content_outputs: tf.Tensor,
+                       content_target: tf.Tensor) -> float:
         """
         Computes the loss function in terms of style and content loss
 
