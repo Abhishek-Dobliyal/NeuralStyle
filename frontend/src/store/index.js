@@ -2,8 +2,8 @@ import { createStore } from "vuex";
 import axios from "axios";
 import { Buffer } from "buffer";
 
-const processImagesURL = "http://localhost:8000/process";
-const getResultURL = "http://localhost:8000/result";
+const processImagesURL = "https://neural-style-backend.onrender.com/process";
+const getResultURL = "https://neural-style-backend.onrender.com/result";
 
 const headers = {
   "Content-Type": "multipart/form-data",
