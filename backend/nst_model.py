@@ -48,8 +48,7 @@ class NST:
         self.style_weight = style_weight
         self.content_weight = content_weight
 
-        self.content_img, self.style_img = self.load_images(content_img_path,
-                                                                                                                            style_img_path)
+        self.content_img, self.style_img = self.load_images(content_img_path, style_img_path)                                                                                                                        
         self.vgg_model = self.load_vgg()
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.05)
         self.content_target, self.style_target = self.get_target_images()
