@@ -6,4 +6,4 @@ uvicorn==0.17.6
 Pillow==9.1.0
 python-multipart==0.0.5
 gdown==4.6.0
-protobuf==3.9.2
+protobuf==3.13.0
